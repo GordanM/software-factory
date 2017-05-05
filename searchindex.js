@@ -1,0 +1,1 @@
+Search.setIndex({docnames:["chapters/intro/index","index"],envversion:50,filenames:["chapters/intro/index.rst","index.rst"],objects:{},objnames:{},objtypes:{},terms:{"3549f80":1,content:1,introduct:1,revis:1,tabl:1},titles:["Introduction","Welcome to the Software Factory documentation"],titleterms:{document:1,factori:1,introduct:0,softwar:1,welcom:1}})
