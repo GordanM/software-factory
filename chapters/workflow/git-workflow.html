@@ -1,0 +1,180 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Git workflow &#8212; Project -a3f7f4d 2017-05-08 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '-a3f7f4d 2017-05-08',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="prev" title="Introduction" href="../intro/index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="git-workflow">
+<h1>Git workflow<a class="headerlink" href="#git-workflow" title="Permalink to this headline">¶</a></h1>
+<p>The suggested workflow when working in a somewhat large project with git, given that one does not
+use gerrit or a similar tool, is a rather general pull request based flow. The following flow is
+general enough so that it works in both GitHub, GitLab and Bitbucket, at least.</p>
+<p>Assume in the examples below that the URL to the repo is
+<code class="docutils literal"><span class="pre">git&#64;github.com:Pelagicore/software-factory.git</span></code>.</p>
+<div class="section" id="general-setup">
+<h2>General setup<a class="headerlink" href="#general-setup" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic">
+<li><p class="first">Fork the repo. That fork will end up at <code class="docutils literal"><span class="pre">git&#64;github.com:&lt;username&gt;/software-factory.git</span></code></p>
+</li>
+<li><p class="first">Clone the original fork and add a remote for the upstream to the repo</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ git clone git@github.com:&lt;username&gt;/software-factory.git
+$ git remote add upstream git@github.com:Pelagicore/software-factory.git
+</pre></div>
+</div>
+</li>
+</ol>
+<p>This will make the fork have <code class="docutils literal"><span class="pre">origin</span></code> as remote name, which we thing feels most natural for most
+developers, as it is the repository the developer will typically push to.  On the other hand, we
+recommend to always type the remote and branch name when pushing, which forces the developer to be
+more explicit about their intentions.</p>
+</div>
+<div class="section" id="for-each-set-of-changes">
+<h2>For each set of changes<a class="headerlink" href="#for-each-set-of-changes" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic">
+<li><p class="first">Check out the master branch and make sure it is up to date</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ git checkout master
+$ git pull upstream master
+$ git push origin master
+</pre></div>
+</div>
+</li>
+<li><p class="first">Check out a new branch to work on</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ git checkout -b some_branch_name
+</pre></div>
+</div>
+<p>This is optional, it is possible to work on master as well, but it has the downside of making
+master blocked while waiting for merge.</p>
+</li>
+<li><p class="first">Do some work, and commit it.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ touch new_file
+$ git add new_file
+$ git commit -s -m &quot;add new_file&quot;
+</pre></div>
+</div>
+</li>
+<li><p class="first">Make sure your branch is up-to-date with master</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ git pull upstream master --rebase
+</pre></div>
+</div>
+<blockquote>
+<div><p>This is to make sure that any conflicts that exist before pushing are resolved locally before
+pushing. It might be the case that there are more people working on the same code that has a
+pull request which just got accepted, which would lead to a conflict in master. Then it is
+better to resolve the conflict in the local branch before creating a new pull request. To keep
+the git log clear of empty merge commits, we recommend rebasing.</p>
+</div></blockquote>
+</li>
+<li><p class="first">Push to the forked remote</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ git push origin some_branch_name
+</pre></div>
+</div>
+</li>
+<li><p class="first">Create a pull request in whatever web frontend for git is being used</p>
+</li>
+</ol>
+<p>Make sure the rest of the team is notified of the pull request. There are different ways of handling
+changes to the pull request. Either any new changes can be added to an existing commit and
+force-pushed to the forked repo, or they can be added on top of the existing commit. The pull
+request will be updated either way.</p>
+<p>Whenever the team is satisfied with the changes, pull the changes in by accepting the pull request.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Git workflow</a><ul>
+<li><a class="reference internal" href="#general-setup">General setup</a></li>
+<li><a class="reference internal" href="#for-each-set-of-changes">For each set of changes</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../intro/index.html" title="previous chapter">Introduction</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/chapters/workflow/git-workflow.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;Pelagicore AB.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/chapters/workflow/git-workflow.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
