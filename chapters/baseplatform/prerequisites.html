@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Introduction &#8212; Project -9b247a8 2017-06-01 documentation</title>
+    <title>Prerequisites for building PELUX &#8212; Project -9b247a8 2017-06-01 documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -26,8 +26,6 @@
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Git workflow" href="../workflow/git-workflow.html" />
-    <link rel="prev" title="Welcome to the Software Factory documentation" href="../../index.html" />
    
   <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
   
@@ -43,8 +41,25 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="introduction">
-<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="prerequisites-for-building-pelux">
+<h1>Prerequisites for building PELUX<a class="headerlink" href="#prerequisites-for-building-pelux" title="Permalink to this headline">¶</a></h1>
+<p>The following packages must be installed in order to build PELUX from source:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>git sed wget cvs subversion git-core coreutils unzip gawk python-pysqlite2
+diffstat help2man make gcc build-essential g++ chrpath libxml2-utils
+libsdl1.2-dev texinfo python3
+</pre></div>
+</div>
+<div class="section" id="dependencies-for-debian-users">
+<h2>Dependencies for Debian users<a class="headerlink" href="#dependencies-for-debian-users" title="Permalink to this headline">¶</a></h2>
+<p>On Debian-based systems, the following command can be used to install these dependencies:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ apt-get update
+$ apt-get install git sed wget cvs subversion git-core coreutils unzip gawk
+python-pysqlite2 diffstat help2man make gcc build-essential g++ chrpath
+libxml2-utils libsdl1.2-dev texinfo python3
+</pre></div>
+</div>
+<p>In addition to these tools, the <cite>repo</cite> tool must also be installed, this is covered in <a class="reference internal" href="using-the-repo-tool.html#using-the-repo-tool"><span class="std std-ref">Using the repo tool</span></a>.</p>
+</div>
 </div>
 
 
@@ -52,19 +67,25 @@
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Prerequisites for building PELUX</a><ul>
+<li><a class="reference internal" href="#dependencies-for-debian-users">Dependencies for Debian users</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../../index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="../../index.html" title="previous chapter">Welcome to the Software Factory documentation</a></li>
-      <li>Next: <a href="../workflow/git-workflow.html" title="next chapter">Git workflow</a></li>
   </ul></li>
 </ul>
 </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../../_sources/chapters/intro/index.rst.txt"
+      <li><a href="../../_sources/chapters/baseplatform/prerequisites.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -90,7 +111,7 @@
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="../../_sources/chapters/intro/index.rst.txt"
+      <a href="../../_sources/chapters/baseplatform/prerequisites.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 
