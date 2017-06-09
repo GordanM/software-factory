@@ -1,0 +1,288 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Continuous integration and deployment &#8212; Project -79eb70c 2017-06-09 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '-79eb70c 2017-06-09',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Software Development Kit" href="../sdk/index.html" />
+    <link rel="prev" title="Base Platform" href="../baseplatform/index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="continuous-integration-and-deployment">
+<h1>Continuous integration and deployment<a class="headerlink" href="#continuous-integration-and-deployment" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="setting-up-automated-testing-on-a-nuc-using-yocto">
+<h2>Setting up automated testing on a NUC using Yocto<a class="headerlink" href="#setting-up-automated-testing-on-a-nuc-using-yocto" title="Permalink to this headline">¶</a></h2>
+<p>This article describes how automated deployment can be set up for test automation of images on a
+HW-target directly from bitbake on the build host. Relevant upstream documentation is available in the Yocto docs
+for automated runtime <a class="reference external" href="http://www.yoctoproject.org/docs/2.2/dev-manual/dev-manual.html#performing-automated-runtime-testing.">testing</a></p>
+<p>After following this how-to you should have:</p>
+<ul class="simple">
+<li>An Intel NUC which is ready to use as testing target</li>
+<li>Knowledge about how to get bitbake to deploy and run tests using that testing target</li>
+</ul>
+<div class="section" id="how-it-works">
+<h3>How it works<a class="headerlink" href="#how-it-works" title="Permalink to this headline">¶</a></h3>
+<p>In order to facilitate the deployment of images to the NUC a &#8220;testmaster&#8221; image is used. The NUC is setup to boot
+this testmaster image by default, and then bitbake can deploy the target rootfs and target kernel using scp and some
+scripting.</p>
+<p>The target rootfs is put on a separate partition, so the testmaster stays intact. Then the bootloader is
+told to boot a secondary entry called &#8220;test&#8221; once, and the target is rebooted which will cause it to boot using the
+rootfs and kernel that should be tested. The tests are then triggered using an ssh connection, and when all tests are
+done the target is rebooted once more so it ends up in testmaster image again.</p>
+<p>There are hooks for enabling bitbake to power-cycle the NUC, which is required if the testing should be able
+to recover from e.g. images that doesn&#8217;t boot. Without those hooks it depends on that a reboot can be initated over an
+ssh connection. This how-to will not describe these hooks though.</p>
+</div>
+<div class="section" id="preparing-the-nuc">
+<h3>Preparing the NUC<a class="headerlink" href="#preparing-the-nuc" title="Permalink to this headline">¶</a></h3>
+<p>There is an image called <cite>core-image-testmaster</cite> which is used as a basis for the setup. Following are a number of
+manual steps that need to be performed when deploying this image. The <cite>repo</cite> tool is used in the examples, for
+more information see <a class="reference internal" href="../baseplatform/using-the-repo-tool.html#using-the-repo-tool"><span class="std std-ref">Using the repo tool</span></a></p>
+<p>Start by building the image:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>mkdir test-automation <span class="o">&amp;&amp;</span> <span class="nb">cd</span> test-automation
+repo init -u https://github.com/Pelagicore/pelux-manifests.git -m pelux-intel-qt.xml -b master
+repo sync
+<span class="nv">TEMPLATECONF</span><span class="o">=</span><span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span>/sources/meta-pelux-bsp-intel/conf-qt/ <span class="nb">source</span> sources/poky/oe-init-build-env build
+<span class="nb">echo</span> <span class="s1">&#39;EFI_PROVIDER = &quot;systemd-boot&quot;&#39;</span> &gt;&gt; conf/local.conf
+bitbake core-image-testmaster
+</pre></div>
+</div>
+<p>We will deploy this image to a USB-stick with the following partition scheme:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="14%" />
+<col width="13%" />
+<col width="13%" />
+<col width="61%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Partition #</th>
+<th class="head">Filesystem</th>
+<th class="head">Label</th>
+<th class="head">Comment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>1</td>
+<td>vfat</td>
+<td>boot</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td>2</td>
+<td>ext3</td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td>3</td>
+<td>swap</td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td>4</td>
+<td>ext3</td>
+<td>testrootfs</td>
+<td>Will be mounted by scripts, so need correct label</td>
+</tr>
+</tbody>
+</table>
+<p>Instead of deploying directly to the USB-stick using mkefidisk.sh we run mkefidisk on a file-backed loop-device
+in order to leave more space at the end of the disk for partition #4. Mkefidisk would otherwise grow the partition #2
+as much as possible to fill the USB-stick.</p>
+<p>Please note that the last argument to mkefidisk.sh is the name of the device on the target HW, e.g. /dev/sda or /dev/mmcblk2, etc.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>dd <span class="k">if</span><span class="o">=</span>/dev/zero <span class="nv">of</span><span class="o">=</span>output.img <span class="nv">count</span><span class="o">=</span><span class="m">1024</span> <span class="nv">bs</span><span class="o">=</span>4M
+sudo losetup --find --show output.img
+sudo ../sources/poky/scripts/contrib/mkefidisk.sh /dev/loop&lt;NUMBER FROM PREVIOUS COMMAND&gt; tmp/deploy/images/intel-corei7-64/core-image-testmaster-intel-corei7-64.hddimg /dev/sda
+sudo losetup -d /dev/loop&lt;NUMBER FROM PREVIOUS COMMAND&gt;
+</pre></div>
+</div>
+<p>We now have a 4GB big disk image which we can write to a USB-stick.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo dd <span class="k">if</span><span class="o">=</span>output.img <span class="nv">of</span><span class="o">=</span>/dev/sd&lt;YOUR USB DEVICE&gt; <span class="nv">bs</span><span class="o">=</span>10M <span class="nv">status</span><span class="o">=</span>progress
+</pre></div>
+</div>
+<p>When this is completed, remove and re-insert the USB-stick. Partition #1-3 will be created now, but we need to manually add
+partition #4.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo fdisk /dev/sd&lt;YOUR USB DEVICE&gt;
+- Press n <span class="k">for</span> new partition
+- Press p <span class="k">for</span> a primary partition
+- Press enter twice to get it to fill all remaining space
+- Press w to write
+sudo mkfs.ext3 -L testrootfs /dev/sd&lt;YOUR USB DEVICE&gt;4
+</pre></div>
+</div>
+<p>Now mount the testmaster rootfs in order to do some changes there:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo mount /dev/sd&lt;YOUR USB DEVICE&gt;2 /mnt/
+
+<span class="c1"># Create image used to identify if system is booted into the testmaster image</span>
+sudo touch /mnt/etc/masterimage
+
+<span class="c1"># Make sure the testmaster image shows a login prompt</span>
+sudo ln -sf /lib/systemd/system/getty@.service /mnt/etc/systemd/system/getty.target.wants/getty@tty1.service
+
+<span class="c1"># Create a network conf file which we then copy to rootfs, this one uses DHCP</span>
+cat <span class="s">&lt;&lt;EOF &gt; /tmp/20-wired.network</span>
+<span class="s">[Match]</span>
+<span class="s">Name=en*</span>
+
+<span class="s">[Network]</span>
+<span class="s">DHCP=ipv4</span>
+
+<span class="s">[DHCP]</span>
+<span class="s">RouteMetric=10</span>
+<span class="s">ClientIdentifier=mac</span>
+<span class="s">EOF</span>
+sudo cp /tmp/20-wired.network /mnt/etc/systemd/network/
+
+
+<span class="c1"># Unmount</span>
+sudo umount /mnt
+</pre></div>
+</div>
+<p>Now we mount the EFI partition to add a bootloader entry called &#8220;test&#8221; which boots the kernel and filesystem under test.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="c1"># Set correct label on EFI partition</span>
+sudo dosfslabel /dev/sd&lt;YOUR USB DEVICE&gt;1 boot
+
+<span class="c1"># Mount EFI partition</span>
+sudo mount /dev/sd&lt;YOUR USB DEVICE&gt;1 /mnt/
+<span class="c1"># Create temp bootloader config file which we then copy</span>
+cat <span class="s">&lt;&lt;EOF &gt; /tmp/test.conf</span>
+<span class="s">title test</span>
+<span class="s">linux /test-kernel</span>
+<span class="s">options LABEL=test root=/dev/sda4 ro rootwait console=ttyS0 console=tty0</span>
+<span class="s">EOF</span>
+sudo cp /tmp/test.conf /mnt/loader/entries/
+
+<span class="c1"># Unmount</span>
+sudo umount /mnt
+</pre></div>
+</div>
+<p>The USB-stick should now be ready and can be inserted into a NUC and booted, do that and check what IP-address it gets
+using e.g. &#8220;ip a&#8221;.</p>
+</div>
+<div class="section" id="building-and-testing-an-image">
+<h3>Building and testing an image<a class="headerlink" href="#building-and-testing-an-image" title="Permalink to this headline">¶</a></h3>
+<p>Current issues in poky means we have to apply a patch needs to be applied:
+<cite>0001-Fix-automated-runtime-testing-using-SystemdbootTarge.patch</cite> which is located in the <a class="reference external" href="https://github.com/Pelagicore/meta-pelux">meta-pelux</a>
+repo in <cite>layers/poky/patch/</cite>.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nb">cd</span> ../sources/poky/
+git am /path/to/meta-pelux/layers/poky/patch/0001-Fix-automated-runtime-testing-using-SystemdbootTarge.patch
+</pre></div>
+</div>
+<p>There is some configuration that needs to be setup in local.conf in order to enable target testing, so add the
+following to conf/local.conf</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nv">IMAGE_FSTYPES</span> <span class="o">+=</span> <span class="s2">&quot;tar.gz&quot;</span>
+<span class="nv">INHERIT</span> <span class="o">+=</span> <span class="s2">&quot;testimage&quot;</span>
+<span class="nv">TEST_TARGET</span> <span class="o">=</span> <span class="s2">&quot;SystemdbootTarget&quot;</span>
+<span class="nv">TEST_TARGET_IP</span> <span class="o">=</span> <span class="s2">&quot;&lt;IP of NUC&gt;&quot;</span>
+<span class="nv">TEST_SERVER_IP</span> <span class="o">=</span> <span class="s2">&quot;&lt;IP of machine used for building&gt;&quot;</span>
+</pre></div>
+</div>
+<p>Sometimes we need to set TEST_SERVER_IP, although that shouldn&#8217;t be neccesary according to the docs.
+This might be related to multiple network interfaces confusing the autodetection.</p>
+<p>You can now build and test basically any image using <code class="docutils literal"><span class="pre">bitbake</span> <span class="pre">-c</span> <span class="pre">testimage</span> <span class="pre">&lt;my</span> <span class="pre">image&gt;</span></code>, e.g.:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>bitbake -c testimage core-image-pelux
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Continuous integration and deployment</a><ul>
+<li><a class="reference internal" href="#setting-up-automated-testing-on-a-nuc-using-yocto">Setting up automated testing on a NUC using Yocto</a><ul>
+<li><a class="reference internal" href="#how-it-works">How it works</a></li>
+<li><a class="reference internal" href="#preparing-the-nuc">Preparing the NUC</a></li>
+<li><a class="reference internal" href="#building-and-testing-an-image">Building and testing an image</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../baseplatform/index.html" title="previous chapter">Base Platform</a></li>
+      <li>Next: <a href="../sdk/index.html" title="next chapter">Software Development Kit</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/chapters/ci-and-cd/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;Pelagicore AB.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/chapters/ci-and-cd/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

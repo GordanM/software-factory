@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Using the repo tool &#8212; Project -9b247a8 2017-06-01 documentation</title>
+    <title>Using the repo tool &#8212; Project -79eb70c 2017-06-09 documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '-9b247a8 2017-06-01',
+        VERSION:     '-79eb70c 2017-06-09',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -46,15 +46,18 @@
 <p>The <code class="docutils literal"><span class="pre">repo</span></code> tool is used to obtain the sources of a PELUX release. <code class="docutils literal"><span class="pre">repo</span></code> was originally developed by the Android <a class="footnote-reference" href="#android" id="id2">[1]</a> project, and it is used to clone specific versions of git repositories into specific locations.</p>
 <div class="section" id="obtaining-the-repo-tool">
 <h2>Obtaining the repo tool<a class="headerlink" href="#obtaining-the-repo-tool" title="Permalink to this headline">¶</a></h2>
-<p>If you already have a directory in your <code class="docutils literal"><span class="pre">$PATH</span></code> for placing user-specific runnables, you should use that location, if not perform the following steps:</p>
+<p>If you already have a directory in your <code class="docutils literal"><span class="pre">$PATH</span></code> for placing user-specific runnables, you should use that location; otherwise perform the following steps to add <code class="docutils literal"><span class="pre">~/bin</span></code> (or any directory of your choice) to your <code class="docutils literal"><span class="pre">$PATH</span></code>:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>mkdir ~/bin
 <span class="nb">echo</span> <span class="s2">&quot;export PATH=~/bin/:</span><span class="nv">$PATH</span><span class="s2">&quot;</span> &gt;&gt; ~/.bashrc
 bash <span class="c1"># needed to reload the ~/.bashrc</span>
 </pre></div>
 </div>
-<p>Note that you need to replace <code class="docutils literal"><span class="pre">~/.bashrc</span></code> with the correct rc-file for your shell.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>curl https://storage.googleapis.com/git-repo-downloads/repo &gt; <span class="se">\</span>
-    ~/bin/repo
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You need to replace <code class="docutils literal"><span class="pre">~/.bashrc</span></code> with the correct rc-file for your shell.</p>
+</div>
+<p>Then download the repo tool binary to <code class="docutils literal"><span class="pre">~/bin</span></code>:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>curl https://storage.googleapis.com/git-repo-downloads/repo &gt; ~/bin/repo
 chmod a+x ~/bin/repo
 </pre></div>
 </div>

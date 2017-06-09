@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Obtaining a PELUX release &#8212; Project -9b247a8 2017-06-01 documentation</title>
+    <title>Obtaining a PELUX release &#8212; Project -79eb70c 2017-06-09 documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '-9b247a8 2017-06-01',
+        VERSION:     '-79eb70c 2017-06-09',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -57,21 +57,24 @@
 <p>Create a directory for the PELUX build. Instruct repo tool to fetch a manifest using the command <cite>repo init</cite>. In this context, branch denotes what branch of git repo <cite>pelux-manifests</cite> to use. Then make repo tool fetch all sources using the command <cite>repo sync</cite>.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>mkdir pelux
 <span class="nb">cd</span> pelux
-repo init -u https://github.com/Pelagicore/pelux-manifests.git <span class="se">\</span>
-     -m &lt;manifest&gt; -b &lt;branch&gt;
+repo init -u https://github.com/Pelagicore/pelux-manifests.git -m &lt;manifest&gt; -b &lt;branch&gt;
 repo sync
 </pre></div>
 </div>
-<p>When done fetching the sources, create a build directory and set up bitbake. TEMPLATECONF tells the <cite>oe-init-build-env</cite> script which path to fetch configuration samples from. Note that the example below get the template configuration for the Intel BSP, adapt the path according to your current BSP.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nv">TEMPLATECONF</span><span class="o">=</span><span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span>/sources/meta-pelux-bsp-intel/conf/ <span class="se">\</span>
-            <span class="nb">source</span> sources/poky/oe-init-build-env build
+<p>When done fetching the sources, create a build directory and set up bitbake. <code class="docutils literal"><span class="pre">TEMPLATECONF</span></code> tells the <code class="docutils literal"><span class="pre">oe-init-build-env</span></code> script which path to fetch configuration samples from.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The example below get the template configuration for the Intel BSP, adapt the path according to your current BSP.</p>
+</div>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nv">TEMPLATECONF</span><span class="o">=</span><span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span>/sources/meta-pelux-bsp-intel/conf/ <span class="nb">source</span> sources/poky/oe-init-build-env build
 </pre></div>
 </div>
-<p>The script will create configs if there are no configs present, a message about created <cite>conf/local.conf</cite> and <cite>conf/bblayers.conf</cite> files is normal.</p>
+<p>The script will create configs if there are no configs present, a message about created <code class="docutils literal"><span class="pre">conf/local.conf</span></code> and <code class="docutils literal"><span class="pre">conf/bblayers.conf</span></code> files is normal.</p>
 <p>Finally, build the desired image. See the variables description above for information on the different images.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>bitbake &lt;image&gt;
 </pre></div>
 </div>
+<p>When the build is complete the result will be available in <code class="docutils literal"><span class="pre">tmp/deploy/images/&lt;machine&gt;/</span></code>. It is possible to generate a number of different image formats, ranging from just the rootfs as a tarball to ready disk-images containing EFI-bootloader, configuration and rootfs and that can be written directly to a storage device. For PELUX, the preffered format for the Intel NUC are .wic images, which are complete disk-images.</p>
 </div>
 
 

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Base Platform &#8212; Project -9b247a8 2017-06-01 documentation</title>
+    <title>Base Platform &#8212; Project -79eb70c 2017-06-09 documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '-9b247a8 2017-06-01',
+        VERSION:     '-79eb70c 2017-06-09',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -26,6 +26,7 @@
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Continuous integration and deployment" href="../ci-and-cd/index.html" />
     <link rel="prev" title="Git workflow" href="../workflow/git-workflow.html" />
    
   <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
@@ -70,15 +71,18 @@ libxml2-utils libsdl1.2-dev texinfo python3
 <p>The <code class="docutils literal"><span class="pre">repo</span></code> tool is used to obtain the sources of a PELUX release. <code class="docutils literal"><span class="pre">repo</span></code> was originally developed by the Android <a class="footnote-reference" href="#android" id="id2">[1]</a> project, and it is used to clone specific versions of git repositories into specific locations.</p>
 <div class="section" id="obtaining-the-repo-tool">
 <h3>Obtaining the repo tool<a class="headerlink" href="#obtaining-the-repo-tool" title="Permalink to this headline">¶</a></h3>
-<p>If you already have a directory in your <code class="docutils literal"><span class="pre">$PATH</span></code> for placing user-specific runnables, you should use that location, if not perform the following steps:</p>
+<p>If you already have a directory in your <code class="docutils literal"><span class="pre">$PATH</span></code> for placing user-specific runnables, you should use that location; otherwise perform the following steps to add <code class="docutils literal"><span class="pre">~/bin</span></code> (or any directory of your choice) to your <code class="docutils literal"><span class="pre">$PATH</span></code>:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>mkdir ~/bin
 <span class="nb">echo</span> <span class="s2">&quot;export PATH=~/bin/:</span><span class="nv">$PATH</span><span class="s2">&quot;</span> &gt;&gt; ~/.bashrc
 bash <span class="c1"># needed to reload the ~/.bashrc</span>
 </pre></div>
 </div>
-<p>Note that you need to replace <code class="docutils literal"><span class="pre">~/.bashrc</span></code> with the correct rc-file for your shell.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>curl https://storage.googleapis.com/git-repo-downloads/repo &gt; <span class="se">\</span>
-    ~/bin/repo
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You need to replace <code class="docutils literal"><span class="pre">~/.bashrc</span></code> with the correct rc-file for your shell.</p>
+</div>
+<p>Then download the repo tool binary to <code class="docutils literal"><span class="pre">~/bin</span></code>:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>curl https://storage.googleapis.com/git-repo-downloads/repo &gt; ~/bin/repo
 chmod a+x ~/bin/repo
 </pre></div>
 </div>
@@ -107,21 +111,24 @@ chmod a+x ~/bin/repo
 <p>Create a directory for the PELUX build. Instruct repo tool to fetch a manifest using the command <cite>repo init</cite>. In this context, branch denotes what branch of git repo <cite>pelux-manifests</cite> to use. Then make repo tool fetch all sources using the command <cite>repo sync</cite>.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>mkdir pelux
 <span class="nb">cd</span> pelux
-repo init -u https://github.com/Pelagicore/pelux-manifests.git <span class="se">\</span>
-     -m &lt;manifest&gt; -b &lt;branch&gt;
+repo init -u https://github.com/Pelagicore/pelux-manifests.git -m &lt;manifest&gt; -b &lt;branch&gt;
 repo sync
 </pre></div>
 </div>
-<p>When done fetching the sources, create a build directory and set up bitbake. TEMPLATECONF tells the <cite>oe-init-build-env</cite> script which path to fetch configuration samples from. Note that the example below get the template configuration for the Intel BSP, adapt the path according to your current BSP.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nv">TEMPLATECONF</span><span class="o">=</span><span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span>/sources/meta-pelux-bsp-intel/conf/ <span class="se">\</span>
-            <span class="nb">source</span> sources/poky/oe-init-build-env build
+<p>When done fetching the sources, create a build directory and set up bitbake. <code class="docutils literal"><span class="pre">TEMPLATECONF</span></code> tells the <code class="docutils literal"><span class="pre">oe-init-build-env</span></code> script which path to fetch configuration samples from.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The example below get the template configuration for the Intel BSP, adapt the path according to your current BSP.</p>
+</div>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nv">TEMPLATECONF</span><span class="o">=</span><span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span>/sources/meta-pelux-bsp-intel/conf/ <span class="nb">source</span> sources/poky/oe-init-build-env build
 </pre></div>
 </div>
-<p>The script will create configs if there are no configs present, a message about created <cite>conf/local.conf</cite> and <cite>conf/bblayers.conf</cite> files is normal.</p>
+<p>The script will create configs if there are no configs present, a message about created <code class="docutils literal"><span class="pre">conf/local.conf</span></code> and <code class="docutils literal"><span class="pre">conf/bblayers.conf</span></code> files is normal.</p>
 <p>Finally, build the desired image. See the variables description above for information on the different images.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>bitbake &lt;image&gt;
 </pre></div>
 </div>
+<p>When the build is complete the result will be available in <code class="docutils literal"><span class="pre">tmp/deploy/images/&lt;machine&gt;/</span></code>. It is possible to generate a number of different image formats, ranging from just the rootfs as a tarball to ready disk-images containing EFI-bootloader, configuration and rootfs and that can be written directly to a storage device. For PELUX, the preffered format for the Intel NUC are .wic images, which are complete disk-images.</p>
 </div>
 </div>
 
@@ -151,6 +158,7 @@ repo sync
 <ul>
   <li><a href="../../index.html">Documentation overview</a><ul>
       <li>Previous: <a href="../workflow/git-workflow.html" title="previous chapter">Git workflow</a></li>
+      <li>Next: <a href="../ci-and-cd/index.html" title="next chapter">Continuous integration and deployment</a></li>
   </ul></li>
 </ul>
 </div>
